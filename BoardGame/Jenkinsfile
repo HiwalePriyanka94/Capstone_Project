@@ -5,7 +5,7 @@ pipeline {
         stage('Checkout') {
             steps { git url: 'https://github.com/HiwalePriyanka94/Capstone_Project.git', branch: 'main' }
         }
-        stage('Build') { steps { sh 'chmod +x ./BoardGame/mvnw && mvn -N wrapper:wrapper  && ./BoardGame/mvnw clean package' } }
+        stage('Build') { steps { sh 'cd BoardGame && chmod +x ./mvnw && mvn -N wrapper:wrapper  && ./mvnw clean package' } }
         stage('Test') { steps { sh './BoardGame/mvnw test' } }
         stage('Security Scan') {
             steps {
