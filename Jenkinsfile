@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+    tools { maven 'mvn' }
+    stages {
+        stage('Checkout') {
+            steps { git url: 'https://github.com/HiwalePriyanka94/Capstone_Project.git', branch: 'main' }
+        }
+        stage('Build') { steps { sh 'mvn --version && java --version && cd BoardGame && chmod +x ./mvnw && mvn -N wrapper:wrapper  && ./mvnw clean package' } }
+        stage('Test') { steps { sh './BoardGame/mvnw test' } }
+        stage('Security Scan') {
+            steps {
+                sh './mvnw sonar:sonar -Dsonar.projectKey=BoardGame'
+                sh 'trivy fs .'
+            }
+        }
+        stage('Docker Build & Push') {
+            steps {
+                script {
+                    docker.build("BoardGame", "./BoardGame").push('latest')
+                }
+            }
+        }
+        stage('Deploy to AWS') {
+            steps {
+                sh 'terraform init'
+                sh 'terraform apply -auto-approve'
+                sh 'ansible-playbook deploy.yml'
+            }
+        }
+        stage('Smoke Test') {
+            steps {
+                sh 'curl -f http://<frontend-alb-dns>/'
+                sh 'curl -f http://<backend-alb-dns>/api/tasks'
+            }
+        }
+    }
+}
+
+
+
