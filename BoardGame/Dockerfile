@@ -5,7 +5,7 @@ FROM openjdk:11-jre-slim
 WORKDIR /app
 
 # Copy the JAR built by Maven
-COPY target/database_service_project-0.0.7.jar app.jar
+COPY ./target/database_service_project-0.0.7.jar app.jar
 
 # Expose the port Spring Boot runs on
 EXPOSE 8080
