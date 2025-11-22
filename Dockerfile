@@ -1,14 +1,18 @@
-# Use OpenJDK as base image
-FROM openjdk:11-jre-slim
+# Stage 1: Build stage
+FROM maven:3.9.4-openjdk-11-slim AS build
 
-# Set working directory in container
 WORKDIR /app
+COPY pom.xml .
+COPY src ./src
 
-# Copy the JAR built by Maven
-COPY ./target/database_service_project-0.0.7.jar app.jar
+RUN mvn clean package -DskipTests
 
-# Expose the port Spring Boot runs on
+# Stage 2: Runtime stage
+FROM openjdk:11.0.3-jdk-slim-stretch
+
+WORKDIR /app
+COPY --from=build /app/target/your-app.jar app.jar
+
 EXPOSE 8080
-
-# Run the JAR
 ENTRYPOINT ["java","-jar","app.jar"]
+
